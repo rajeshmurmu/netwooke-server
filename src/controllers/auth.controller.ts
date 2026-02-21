@@ -2,6 +2,7 @@ import config, {
   accessTokencookieOptions,
   refreshTokencookieOptions,
 } from "@src/config";
+import { AuthRequest } from "@src/middlewares/auth.middleware";
 import AuthService from "@src/services/auth.service";
 import { ApiResponse } from "@src/utils/ApiResponse";
 import asyncHandler from "@src/utils/asyncHandler";
@@ -116,3 +117,21 @@ export const refreshAccessToken = asyncHandler(
       );
   },
 );
+
+export const logout = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const userId = req.user?.id;
+  const deviceId = getDeviceFingerPrint(req);
+
+  await AuthService.logout(userId, deviceId);
+
+  res
+    .clearCookie("accessToken")
+    .clearCookie("refreshToken")
+    .status(httpstatus.OK)
+    .json(
+      new ApiResponse({
+        statusCode: httpstatus.OK,
+        message: "Logged out successfully",
+      }),
+    );
+});

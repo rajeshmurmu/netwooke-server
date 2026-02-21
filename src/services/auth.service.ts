@@ -147,6 +147,11 @@ class AuthService {
       newRefreshToken,
     };
   }
+
+  static async logout(userId: string, deviceId: string) {
+    await redisClient.del(`user:${userId}`);
+    await redisClient.del(`refreshToken:${userId}:${deviceId}`);
+  }
 }
 
 export default AuthService;
