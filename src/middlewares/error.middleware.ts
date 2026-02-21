@@ -1,4 +1,4 @@
-import { AppError } from "@src/utils/error";
+import { AppError, ZodValidationError } from "@src/utils/error";
 import config from "@src/config";
 import { Request, Response, NextFunction } from "express";
 import logger from "@src/config/winston";
@@ -13,6 +13,14 @@ export default function errorHandler(
     return res.status(err.statusCode).json({
       message: err.message,
       success: false,
+    });
+  }
+
+  if (err instanceof ZodValidationError) {
+    return res.status(err.statusCode).json({
+      message: err.message,
+      success: false,
+      errors: err.fieldErros,
     });
   }
 

@@ -1,4 +1,5 @@
 import { StatusCodes } from "http-status-codes";
+import { ZodError } from "zod";
 
 export class AppError extends Error {
   constructor(
@@ -51,5 +52,20 @@ export class TooManyRequestsError extends AppError {
 export class InternalServerError extends AppError {
   constructor(message: string) {
     super(message, StatusCodes.INTERNAL_SERVER_ERROR);
+  }
+}
+
+export class ZodValidationError extends Error {
+  public fieldErros: any;
+  public statusCode = StatusCodes.BAD_REQUEST;
+  constructor(
+    public message: string,
+    error: ZodError,
+  ) {
+    super(message);
+    this.message = message;
+    if (error instanceof ZodError) {
+      this.fieldErros = error.flatten().fieldErrors;
+    }
   }
 }

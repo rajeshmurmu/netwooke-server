@@ -1,0 +1,26 @@
+name: netwooke-server
+
+
+services:
+
+  redis:
+    image: redis/redis-stack:6.2.6-v19
+    container_name: redis
+    restart: always
+    environment:
+      REDIS_ARGS: "--requirepass netwookepass"
+    ports:
+      - "6379:6379"
+      - "8001:8001"
+    volumes:
+      - redis_data:/data
+    networks:
+      - netwooke-network
+
+volumes:
+  postgres_data:
+  redis_data:
+  
+networks:
+  netwooke-network:
+    driver: bridge
