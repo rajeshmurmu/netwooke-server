@@ -36,7 +36,7 @@ app.use(express.static("public"));
 
 // API Routes
 app.use("/api/v1/auth", authRoutes);
-app.use("/api/v1/user", userRoutes);
+app.use("/api/v1/users", userRoutes);
 
 // Routes
 app.get("/", (_, res) => {
