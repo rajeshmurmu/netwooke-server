@@ -40,7 +40,7 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
     .json(
       new ApiResponse({
         statusCode: httpstatus.OK,
-        message: "OTP sent to your email",
+        message: "OTP sent to your email, please verify",
       }),
     );
 });
@@ -49,7 +49,7 @@ export const verifyOtp = asyncHandler(async (req: Request, res: Response) => {
   const { otp } = req.body;
   const { otpSessionId } = req.cookies;
   if (!otpSessionId) {
-    throw new BadRequestError("OTP or OTP session are missing");
+    throw new BadRequestError("Invalid OTP"); // OTP or OTP session are missing
   }
 
   // verify otp
@@ -61,7 +61,7 @@ export const verifyOtp = asyncHandler(async (req: Request, res: Response) => {
     .json(
       new ApiResponse({
         statusCode: httpstatus.CREATED,
-        message: "OTP verified successfully",
+        message: "Account verified successfully",
         data: { user },
       }),
     );
@@ -89,8 +89,9 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
     .json(
       new ApiResponse({
         statusCode: httpstatus.OK,
-        message: "Logged in successfully",
-        data: { user },
+        message: "User logged in successfully",
+        data: { user, accessToken, refreshToken },
+        success: true,
       }),
     );
 });

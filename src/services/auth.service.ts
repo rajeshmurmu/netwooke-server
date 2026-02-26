@@ -22,7 +22,7 @@ class AuthService {
     });
 
     if (user) {
-      throw new ConflictError("User already exist");
+      throw new ConflictError("User already exist, please login");
     }
 
     // hash password
