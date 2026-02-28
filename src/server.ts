@@ -10,6 +10,7 @@ import cookieParser from "cookie-parser";
 import errorHandler from "./middlewares/error.middleware";
 import authRoutes from "./routes/auth.routes";
 import userRoutes from "./routes/user.routes";
+import genAIRoutes from "./routes/genai.routes";
 
 const app = express();
 
@@ -37,6 +38,7 @@ app.use(express.static("public"));
 // API Routes
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/users", userRoutes);
+app.use("/api/v1/genai", genAIRoutes);
 
 // Routes
 app.get("/", (_, res) => {
