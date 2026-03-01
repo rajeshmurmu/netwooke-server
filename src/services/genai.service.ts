@@ -1,4 +1,5 @@
 import { GoogleGenAI, Type } from "@google/genai";
+import { BadRequestError } from "@src/utils/error";
 
 class GenAIService {
   private static ai = new GoogleGenAI({ apiKey: process.env.GEMNI_API_KEY });
@@ -9,7 +10,7 @@ class GenAIService {
     try {
       const response = await this.ai.models.generateContent({
         model: "gemini-3-flash-preview",
-        contents: `Analyze the following content for a positive growth-focused social platform. Detect bullying, hate speech, toxic roasting, or inappropriate content for young men. 
+        contents: `Analyze the following content for a positive growth-focused social platform. Detect bullying, hate speech, toxic roasting, or inappropriate content for young men. If the user input is random characters, non-sensical, or keyboard mash, ignore it and respond with: 'Could you please rephrase your question?
       Content: "${text}"`,
         config: {
           responseMimeType: "application/json",
@@ -33,7 +34,10 @@ class GenAIService {
       return JSON.parse(textOutput);
     } catch (error) {
       console.error("Moderation error:", error);
-      return { isSafe: true }; // Graceful failure
+      // return { isSafe: true }; // Graceful failure
+      throw new BadRequestError(
+        "Failed to process content!. Please try again later. If the issue persists, please contact support. Thank you for your patience and understanding.",
+      );
     }
   }
 

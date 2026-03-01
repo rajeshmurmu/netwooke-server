@@ -38,6 +38,16 @@ const _config = {
   REFRESH_TOKEN_TTL: Number(process.env.REFRESH_TOKEN_TTL) || 30 * 24 * 60 * 60, // 30 days
 
   REDIS_USER_TTL: Number(process.env.REDIS_USER_TTL) || 24 * 60 * 60, // 30 days
+
+  MAX_FILE_SIZE: Number(process.env.MAX_FILE_SIZE) || 20 * 1024 * 1024, // 2 MB
+
+  GEMNI_API_KEY: process.env.GEMNI_API_KEY,
+
+  CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME,
+  CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
+  CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
+
+  POSTS_PER_PAGE_LIMIT: Number(process.env.PER_PAGE_LIMIT) || 10,
 } as const;
 
 const config = Object.freeze(_config);

@@ -11,6 +11,7 @@ import errorHandler from "./middlewares/error.middleware";
 import authRoutes from "./routes/auth.routes";
 import userRoutes from "./routes/user.routes";
 import genAIRoutes from "./routes/genai.routes";
+import postRoutes from "./routes/post.route";
 
 const app = express();
 
@@ -39,6 +40,7 @@ app.use(express.static("public"));
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/genai", genAIRoutes);
+app.use("/api/v1/posts", postRoutes);
 
 // Routes
 app.get("/", (_, res) => {

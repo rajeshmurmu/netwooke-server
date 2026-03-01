@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { required } from "zod/v4/core/util.cjs";
 
 const postSchema = new mongoose.Schema(
   {
@@ -8,12 +9,32 @@ const postSchema = new mongoose.Schema(
       required: true,
     },
     content: { type: String, required: true },
-    mediaUrl: { type: String },
+    media: {
+      type: {
+        url: {
+          type: String,
+          required: function () {
+            return this.mediaType !== "none";
+          },
+        },
+        public_id: { type: String, required: false },
+        mediaType: {
+          type: String,
+          enum: ["audio", "video", "image", "none"],
+          defaul: "none",
+        },
+      },
+      default: null,
+    },
 
     visibility: {
       type: String,
       enum: ["public", "group", "private"],
       default: "public",
+    },
+    tags: {
+      type: [String],
+      default: [],
     },
   },
   { timestamps: true },
