@@ -69,15 +69,6 @@ export const createPost = asyncHandler(
       throw new BadRequestError("Tags must be an array");
     }
 
-    // verify moderatenity of content
-    const { isSafe, reason } = await GenAIService.moderateContent(content);
-
-    if (!isSafe) {
-      throw new BadRequestError(
-        `Network Tube is a safe space. Please refine your wisdom: ${reason}`,
-      );
-    }
-
     const post = await PostService.createPost({
       content,
       mediaType,

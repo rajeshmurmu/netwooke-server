@@ -12,6 +12,7 @@ import authRoutes from "./routes/auth.routes";
 import userRoutes from "./routes/user.routes";
 import genAIRoutes from "./routes/genai.routes";
 import postRoutes from "./routes/post.route";
+import { startWorker } from "./utils/bullmq/bullmq.worker";
 
 const app = express();
 
@@ -59,6 +60,14 @@ connectToMongoDB()
     app.listen(config.PORT, () => {
       logger.info(`Server is running on port ${config.PORT}`);
     });
+
+    // start bullmq worker
+    try {
+      startWorker();
+      logger.info("BullMQ worker started successfully");
+    } catch (error) {
+      logger.error("Failed to start BullMQ worker:", error);
+    }
   })
   .catch((error) => {
     logger.error("Failed to connect to MongoDB:", error);

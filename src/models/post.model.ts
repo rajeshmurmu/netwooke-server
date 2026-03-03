@@ -36,12 +36,25 @@ const postSchema = new mongoose.Schema(
       type: [String],
       default: [],
     },
+    moderatenity: {
+      isSafe: {
+        type: Boolean,
+        default: false,
+      },
+      reason: {
+        type: String,
+        default: null,
+      },
+    },
   },
   { timestamps: true },
 );
 
 postSchema.index({ userId: 1, createdAt: -1 });
+postSchema.index({ content: "text", tags: "text" });
 
 const Post = mongoose.models.Post || mongoose.model("Post", postSchema);
+
+export type PostType = mongoose.InferSchemaType<typeof postSchema>;
 
 export default Post;

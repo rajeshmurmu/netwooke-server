@@ -37,6 +37,9 @@ const _config = {
   ACCESS_TOKEN_TTL: Number(process.env.ACCESS_TOKEN_TTL) || 15 * 60, // 15 minutes
   REFRESH_TOKEN_TTL: Number(process.env.REFRESH_TOKEN_TTL) || 30 * 24 * 60 * 60, // 30 days
 
+  REDIS_HOST: process.env.REDIS_HOST || "localhost",
+  REDIS_PORT: parseInt(process.env.REDIS_PORT || "6379"),
+  REDIS_PASSWORD: process.env.REDIS_PASSWORD || "root",
   REDIS_USER_TTL: Number(process.env.REDIS_USER_TTL) || 24 * 60 * 60, // 30 days
 
   MAX_FILE_SIZE: Number(process.env.MAX_FILE_SIZE) || 20 * 1024 * 1024, // 2 MB

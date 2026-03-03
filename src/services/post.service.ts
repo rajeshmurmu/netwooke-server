@@ -1,4 +1,6 @@
+import logger from "@src/config/winston";
 import { Post } from "@src/models";
+import { addPostToQueue } from "@src/utils/bullmq/bullmq.queue";
 import {
   uploadAudioToCloudinary,
   uploadImageToCloudinary,
@@ -19,13 +21,19 @@ class PostService {
     userId: string;
     tags?: string[];
   }) {
-    // create post if no media
+    // create post and return if no media is provided
     if (mediaType === "none") {
       const post = new Post({
         userId,
         content,
       });
       await post.save();
+
+      await addPostToQueue({
+        postId: post._id.toString(),
+        content,
+      });
+
       return post;
     }
 
@@ -77,6 +85,13 @@ class PostService {
 
     // save post
     await post.save();
+
+    // add post to queue for moderation
+    await addPostToQueue({
+      postId: post._id.toString(),
+      content,
+    });
+
     return post;
   }
   static async getPosts({
@@ -93,15 +108,17 @@ class PostService {
     const posts = await Post.aggregate([
       {
         $match: {
+          visibility: "public",
+          "moderatenity.isSafe": true,
           $or: [
             { content: { $regex: search, $options: "i" } },
-            { tags: { $regex: search, $options: "i" } },
+            { tags: { $elemMatch: { $regex: search, $options: "i" } } },
           ],
         },
       },
       { $sort: { createdAt: -1 } },
       { $skip: skip },
-      { $limit: limit },
+      { $limit: page * limit },
       {
         $lookup: {
           from: "users",

@@ -1,56 +1,95 @@
-import { GoogleGenAI, Type } from "@google/genai";
+import OpenAI from "openai";
 import { BadRequestError } from "@src/utils/error";
 
 class GenAIService {
-  private static ai = new GoogleGenAI({ apiKey: process.env.GEMNI_API_KEY });
+  private static openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+  });
 
+  // Content Moderation (Hybrid: OpenAI moderation + GPT reasoning)
   static async moderateContent(
     text: string,
   ): Promise<{ isSafe: boolean; reason?: string }> {
     try {
-      const response = await this.ai.models.generateContent({
-        model: "gemini-3-flash-preview",
-        contents: `Analyze the following content for a positive growth-focused social platform. Detect bullying, hate speech, toxic roasting, or inappropriate content for young men. If the user input is random characters, non-sensical, or keyboard mash, ignore it and respond with: 'Could you please rephrase your question?
-      Content: "${text}"`,
-        config: {
-          responseMimeType: "application/json",
-          responseSchema: {
-            type: Type.OBJECT,
-            properties: {
-              isSafe: { type: Type.BOOLEAN },
-              reason: {
-                type: Type.STRING,
-                description: "Reason for rejection if not safe",
-              },
-            },
-            required: ["isSafe"],
-          },
-        },
+      // Step 1: Basic safety check (fast + cheap)
+      const moderation = await this.openai.moderations.create({
+        model: "omni-moderation-latest",
+        input: text,
       });
 
-      const textOutput = response.text?.trim();
-      if (!textOutput) return { isSafe: true };
+      const flagged = moderation.results[0].flagged;
 
-      return JSON.parse(textOutput);
+      // Step 2: If clearly unsafe → reject immediately
+      if (flagged) {
+        return {
+          isSafe: false,
+          reason: "Content violates platform safety guidelines",
+        };
+      }
+
+      // 🔹 Step 3: Use GPT for nuanced platform-specific moderation
+      const response = await this.openai.chat.completions.create({
+        model: "gpt-5-mini", // fast + cheap
+        messages: [
+          {
+            role: "system",
+            content:
+              "You are a strict content moderator for a positive growth-focused platform for young men.",
+          },
+          {
+            role: "user",
+            content: `
+Analyze the following content:
+
+Rules:
+- Detect bullying, hate speech, toxic roasting, or negativity
+- Allow motivational, neutral, and constructive content
+- If text is random characters or nonsensical → ask to rephrase
+- Reject meaningless, random, or irrelevant content
+- Reject programming code, symbols, or non-social text
+- If not meaningful human language → mark unsafe
+
+Return ONLY JSON:
+{
+  "isSafe": boolean,
+  "reason": "optional reason"
+}
+
+Content: "${text}"
+            `,
+          },
+        ],
+        response_format: { type: "json_object" },
+      });
+
+      const output = response.choices[0].message.content;
+      if (!output) return { isSafe: true };
+
+      return JSON.parse(output);
     } catch (error) {
       console.error("Moderation error:", error);
-      // return { isSafe: true }; // Graceful failure
       throw new BadRequestError(
-        "Failed to process content!. Please try again later. If the issue persists, please contact support. Thank you for your patience and understanding.",
+        "Failed to process content!. Please try again later.",
       );
     }
   }
 
+  // Reflection Prompt Generator
   static async generateReflectionPrompt(): Promise<string> {
     try {
-      const response = await this.ai.models.generateContent({
-        model: "gemini-3-flash-preview",
-        contents:
-          "Generate a single, thoughtful reflection prompt for a young man (16-30) focused on personal growth, mindset, or resilience. One sentence only.",
+      const response = await this.openai.chat.completions.create({
+        model: "gpt-5-mini",
+        messages: [
+          {
+            role: "user",
+            content:
+              "Generate one short, powerful reflection question for a young man (16-30) about growth, mindset, or discipline. One sentence only.",
+          },
+        ],
       });
-      // Fix: Access the .text property directly.
+
       return (
-        response.text?.trim() ||
+        response.choices[0].message.content?.trim() ||
         "What challenged you today and how did you respond?"
       );
     } catch (error) {
