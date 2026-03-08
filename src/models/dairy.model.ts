@@ -7,9 +7,14 @@ const diarySchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    title: String,
-    content: String,
-    mood: String,
+    title: {
+      type: String,
+      required: true,
+    },
+    content: {
+      type: String,
+      required: true,
+    },
     isPrivate: { type: Boolean, default: true },
   },
   { timestamps: true },

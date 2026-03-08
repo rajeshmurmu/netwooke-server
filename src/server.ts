@@ -12,6 +12,7 @@ import authRoutes from "./routes/auth.routes";
 import userRoutes from "./routes/user.routes";
 import genAIRoutes from "./routes/genai.routes";
 import postRoutes from "./routes/post.route";
+import dairyRoutes from "./routes/dairy.routes";
 import { startWorker } from "./utils/bullmq/bullmq.worker";
 
 const app = express();
@@ -42,6 +43,7 @@ app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/genai", genAIRoutes);
 app.use("/api/v1/posts", postRoutes);
+app.use("/api/v1/dairy", dairyRoutes);
 
 // Routes
 app.get("/", (_, res) => {
