@@ -12,7 +12,7 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "tsc && tsc-alias",
-    "start": "node dist/src/server.js"
+    "start": "node dist/server.js"
   },
   "dependencies": {
     "@google/genai": "^1.41.0",
